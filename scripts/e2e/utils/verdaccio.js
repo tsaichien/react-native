@@ -41,8 +41,6 @@ function setupVerdaccio() /*: number */ {
     {env: {...process.env, VERDACCIO_STORAGE_PATH}},
   );
 
-  execSync(`npx wait-on@6.0.1 ${VERDACCIO_SERVER_URL}`);
-
   return verdaccioProcess.pid;
 }
 
