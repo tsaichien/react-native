@@ -1,11 +1,10 @@
 name: Nightly
 
 on:
-    workflow_dispatch:
-    # nightly build @ 2:15 AM UTC
-    schedule:
-     - cron: '15 2 * * *'
-
+  workflow_dispatch:
+  # nightly build @ 2:15 AM UTC
+  schedule:
+    - cron: "15 2 * * *"
 
 jobs:
   set_release_type:
@@ -501,6 +500,7 @@ jobs:
     needs: [set_release_type]
     container:
       image: reactnativecommunity/react-native-android:latest
+      options: --user 1001
       env:
         TERM: "dumb"
         GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -509,6 +509,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: true
       - name: Setup node.js
         uses: ./.github/actions/setup-node
       - name: Install dependencies
@@ -554,12 +558,21 @@ jobs:
 
   build_npm_package:
     runs-on: 8-core-ubuntu
-    needs: [set_release_type, prepare_hermes_workspace, build_hermes_macos, build_hermesc_linux, build_hermesc_windows,build_android]
+    needs:
+      [
+        set_release_type,
+        prepare_hermes_workspace,
+        build_hermes_macos,
+        build_hermesc_linux,
+        build_hermesc_windows,
+        build_android,
+      ]
     container:
       image: reactnativecommunity/react-native-android:latest
+      options: --user 1001
       env:
         TERM: "dumb"
-        GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+        GRADLE_OPTS: "-Dorg.gradle.daemon=false"
         # By default we only build ARM64 to save time/resources. For release/nightlies/prealpha, we override this value to build all archs.
         ORG_GRADLE_PROJECT_reactNativeArchitectures: "arm64-v8a"
         # Repeated here, as the environment key in this executor will overwrite the one in defaults
