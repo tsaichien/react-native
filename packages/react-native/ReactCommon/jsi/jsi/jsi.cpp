@@ -147,7 +147,7 @@ Value Runtime::createValueFromJsonUtf8(const uint8_t* json, size_t length) {
   return parseJson.call(*this, String::createFromUtf8(*this, json, length));
 }
 
-Pointer& Pointer::operator=(Pointer&& other) {
+Pointer& Pointer::operator=(Pointer&& other) noexcept {
   if (ptr_) {
     ptr_->invalidate();
   }
