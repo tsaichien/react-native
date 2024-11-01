@@ -24,11 +24,17 @@ const deprecated = () => {
 };
 
 function findCommunityCli(startDir = process.cwd()) {
-  // In a pnpm, we won't be able to find `@react-native-community/cli` starting
-  // from the `react-native` directory. Instead, we must use the project's root.
-  const options = { paths: [startDir] };
-  const rncli = require.resolve('@react-native-community/cli', options);
-  return require(rncli);
+  try {
+    // In monorepos, we cannot make any assumptions on where
+    // `@react-native-community/cli` gets installed. The safest way to find it
+    // (barring adding an optional peer dependency) is to start from the project
+    // root, assuming the project root is the current working directory.
+    const options = { paths: [startDir] };
+    const rncli = require.resolve('@react-native-community/cli', options);
+    return require(rncli);
+  } catch (_) {
+    return require('@react-native-community/cli');
+  }
 }
 
 function isMissingCliDependency(error) {
